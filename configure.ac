@@ -245,6 +245,15 @@ if test x$enable_rdp_compositor = xyes; then
   CPPFLAGS="$SAVED_CPPFLAGS"
 fi
 
+AC_ARG_ENABLE([spice-compositor], [  --enable-spice-compositor],,
+	          enable_spice_compositor=no)
+AM_CONDITIONAL(ENABLE_SPICE_COMPOSITOR, test x$enable_spice_compositor = xyes)
+if test x$enable_spice_compositor = xyes; then
+  AC_DEFINE([BUILD_SPICE_COMPOSITOR], [1], [Build the spice compositor])
+  PKG_CHECK_MODULES(SPICE_SERVER, [spice-server])
+  PKG_CHECK_MODULES(SPICE_PROTOCOL, [spice-protocol])
+fi
+
 AC_ARG_ENABLE([screen-sharing], [  --enable-screen-sharing],,
               enable_screen_sharing=no)
 AM_CONDITIONAL([ENABLE_SCREEN_SHARING],
@@ -290,6 +299,14 @@ fi
 if test "x$cairo_modules" = "xcairo-glesv2"; then
 AC_DEFINE([USE_CAIRO_GLESV2], [1], [Use the GLESv2 GL cairo backend])
 fi
+
+AC_ARG_ENABLE(monitor-renderer, [  --enable-monitor-renderer],,
+              enable_monitor_renderer=no)
+AM_CONDITIONAL(ENABLE_MONITOR_RENDERER, test x$enable_monitor_renderer = xyes)
+if test x$enable_monitor_renderer = xyes; then
+	AC_DEFINE([BUILD_MONITOR_RENDERER], [1], [Build renderer dump wrapper])
+fi
+
 
 PKG_CHECK_MODULES(PIXMAN, [pixman-1])
 PKG_CHECK_MODULES(PNG, [libpng])
@@ -672,6 +689,7 @@ AC_MSG_RESULT([
 	RPI Compositor			${enable_rpi_compositor}
 	FBDEV Compositor		${enable_fbdev_compositor}
 	RDP Compositor			${enable_rdp_compositor}
+	Spice Compositor		${enable_spice_compositor}
 	Screen Sharing			${enable_screen_sharing}
 	JUnit XML output		${enable_junit_xml}
 

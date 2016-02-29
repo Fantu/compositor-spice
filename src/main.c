@@ -241,6 +241,9 @@ usage(int error_code)
 #if defined(BUILD_RDP_COMPOSITOR)
 			"\t\t\t\trdp-backend.so\n"
 #endif
+#if defined(BUILD_SPICE_COMPOSITOR)
+			"\t\t\t\tspice-backend.so\n"
+#endif
 #if defined(BUILD_RPI_COMPOSITOR) && defined(HAVE_BCM_HOST)
 			"\t\t\t\trpi-backend.so\n"
 #endif
