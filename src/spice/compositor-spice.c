@@ -392,7 +392,7 @@ backend_init(struct weston_compositor *compositor, int *argc, char *argv[],
 {
     struct spice_backend *b;
     struct spice_backend_config config = {
-        .addr = "*",
+        .addr = "",
         .port = 5912,
         .flags = 0,
         .no_auth = 1,
