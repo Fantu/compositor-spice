@@ -34,12 +34,14 @@
 #include "weston_basic_event_loop.h"
 #include "weston_qxl_commands.h"
 
+#define SPICE_ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 struct spice_backend_config {
     const char* addr;
     int flags;
     int port;
     int no_auth;
+    char *image_compression;
 };
 struct spice_output {
     struct weston_output base;
@@ -56,6 +58,49 @@ struct spice_output {
 
     struct SpiceTimer *wakeup_timer;
 };
+
+static int name2enum(const char *string, const char *table[], int entries)
+{
+    int i;
+
+    if (string) {
+        for (i = 0; i < entries; i++) {
+            if (!table[i]) {
+                continue;
+            }
+            if (strcmp(string, table[i]) != 0) {
+                continue;
+            }
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int parse_name(const char *string, const char *optname,
+                      const char *table[], int entries)
+{
+    int value = name2enum(string, table, entries);
+
+    if (value != -1) {
+        return value;
+    }
+    fprintf(stderr, "spice: invalid %s: %s\n", optname, string);
+    exit(1);
+}
+
+static const char *compression_names[] = {
+    [ SPICE_IMAGE_COMPRESS_OFF ]      = "off",
+    [ SPICE_IMAGE_COMPRESS_AUTO_GLZ ] = "auto_glz",
+    [ SPICE_IMAGE_COMPRESS_AUTO_LZ ]  = "auto_lz",
+    [ SPICE_IMAGE_COMPRESS_QUIC ]     = "quic",
+    [ SPICE_IMAGE_COMPRESS_GLZ ]      = "glz",
+    [ SPICE_IMAGE_COMPRESS_LZ ]       = "lz",
+    //TODO: add lz4 support...only if spice-server version >=0.12.6
+};
+#define parse_compression(_name)                                        \
+    parse_name(_name, "image compression",                              \
+               compression_names, SPICE_ARRAY_SIZE(compression_names))
 
 static void
 spice_output_start_repaint_loop(struct weston_output *output_base)
@@ -212,6 +257,8 @@ static void
 weston_spice_server_new (struct spice_backend *b,
         const struct spice_backend_config *config)
 {
+    spice_image_compression_t compression;
+    
     //Init spice server
     b->spice_server = spice_server_new();
 
@@ -222,6 +269,12 @@ weston_spice_server_new (struct spice_backend *b,
     if (config->no_auth) {
         spice_server_set_noauth (b->spice_server);
     }
+
+    compression = SPICE_IMAGE_COMPRESS_AUTO_GLZ;
+    if (config->image_compression) {
+        compression = parse_compression(config->image_compression);
+    }
+    spice_server_set_image_compression(b->spice_server, compression);
 
     //TODO set another spice server options here
 
@@ -343,11 +396,13 @@ backend_init(struct weston_compositor *compositor, int *argc, char *argv[],
         .port = 5912,
         .flags = 0,
         .no_auth = 1,
+        .image_compression = NULL,
     };
 
     const struct weston_option spice_options[] = {
 		{ WESTON_OPTION_STRING,  "host", 0, &config.addr },
 		{ WESTON_OPTION_INTEGER, "port", 0, &config.port },
+		{ WESTON_OPTION_STRING,  "image-compression", 0, &config.image_compression },
         //TODO parse auth options here
 	};
 
