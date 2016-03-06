@@ -41,6 +41,8 @@ struct spice_backend_config {
     int flags;
     int port;
     char *image_compression;
+    char *jpeg_wan_compression;
+    char *zlib_glz_wan_compression;
     char *password;
 };
 struct spice_output {
@@ -103,6 +105,15 @@ static const char *compression_names[] = {
 #define parse_compression(_name)                                        \
     parse_name(_name, "image compression",                              \
                compression_names, SPICE_ARRAY_SIZE(compression_names))
+
+static const char *wan_compression_names[] = {
+    [ SPICE_WAN_COMPRESSION_AUTO   ] = "auto",
+    [ SPICE_WAN_COMPRESSION_NEVER  ] = "never",
+    [ SPICE_WAN_COMPRESSION_ALWAYS ] = "always",
+};
+#define parse_wan_compression(_name)                                    \
+    parse_name(_name, "wan compression",                                \
+               wan_compression_names, SPICE_ARRAY_SIZE(wan_compression_names))
 
 static void
 spice_output_start_repaint_loop(struct weston_output *output_base)
@@ -260,7 +271,8 @@ weston_spice_server_new (struct spice_backend *b,
         const struct spice_backend_config *config)
 {
     spice_image_compression_t compression;
-    
+    spice_wan_compression_t wan_compr;
+
     //Init spice server
     b->spice_server = spice_server_new();
 
@@ -279,6 +291,18 @@ weston_spice_server_new (struct spice_backend *b,
         compression = parse_compression(config->image_compression);
     }
     spice_server_set_image_compression(b->spice_server, compression);
+
+    wan_compr = SPICE_WAN_COMPRESSION_AUTO;
+    if (config->jpeg_wan_compression) {
+        wan_compr = parse_wan_compression(config->jpeg_wan_compression);
+    }
+    spice_server_set_jpeg_compression(b->spice_server, wan_compr);
+
+    wan_compr = SPICE_WAN_COMPRESSION_AUTO;
+    if (config->zlib_glz_wan_compression) {
+        wan_compr = parse_wan_compression(config->zlib_glz_wan_compression);
+    }
+    spice_server_set_zlib_glz_compression(b->spice_server, wan_compr);
 
     //TODO set another spice server options here
 
@@ -401,12 +425,16 @@ backend_init(struct weston_compositor *compositor, int *argc, char *argv[],
         .flags = 0,
         .password = NULL,
         .image_compression = NULL,
+        .jpeg_wan_compression = NULL,
+        .zlib_glz_wan_compression = NULL,
     };
 
     const struct weston_option spice_options[] = {
 		{ WESTON_OPTION_STRING,  "host", 0, &config.addr },
 		{ WESTON_OPTION_INTEGER, "port", 0, &config.port },
 		{ WESTON_OPTION_STRING,  "image-compression", 0, &config.image_compression },
+		{ WESTON_OPTION_STRING,  "jpeg-wan-compression", 0, &config.jpeg_wan_compression },
+		{ WESTON_OPTION_STRING,  "zlib-glz-wan-compression", 0, &config.zlib_glz_wan_compression },
 		{ WESTON_OPTION_STRING,  "password", 0, &config.password },
 	};
 
