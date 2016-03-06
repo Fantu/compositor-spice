@@ -310,6 +310,7 @@ usage(int error_code)
 		"Options for spice-backend.so:\n\n"
 		"  --host=ADDR\tThe address to bind\n"
 		"  --port=PORT\t\tThe port to listen on\n"
+		"  --password=PWD\tThe password (auth disabled if not specified)\n"
 		"  --image-compression=\t\tThe image compression\n"
 		"\n");
 #endif

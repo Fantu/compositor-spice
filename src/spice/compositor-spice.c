@@ -40,8 +40,8 @@ struct spice_backend_config {
     const char* addr;
     int flags;
     int port;
-    int no_auth;
     char *image_compression;
+    char *password;
 };
 struct spice_output {
     struct weston_output base;
@@ -268,7 +268,9 @@ weston_spice_server_new (struct spice_backend *b,
                            config->addr, config->flags);
     spice_server_set_port (b->spice_server,
                            config->port );
-    if (config->no_auth) {
+    if (config->password) {
+        spice_server_set_ticket(b->spice_server, config->password, 0, 0, 0);
+    } else {
         spice_server_set_noauth (b->spice_server);
     }
 
@@ -397,7 +399,7 @@ backend_init(struct weston_compositor *compositor, int *argc, char *argv[],
         .addr = "",
         .port = 5912,
         .flags = 0,
-        .no_auth = 1,
+        .password = NULL,
         .image_compression = NULL,
     };
 
@@ -405,7 +407,7 @@ backend_init(struct weston_compositor *compositor, int *argc, char *argv[],
 		{ WESTON_OPTION_STRING,  "host", 0, &config.addr },
 		{ WESTON_OPTION_INTEGER, "port", 0, &config.port },
 		{ WESTON_OPTION_STRING,  "image-compression", 0, &config.image_compression },
-        //TODO parse auth options here
+		{ WESTON_OPTION_STRING,  "password", 0, &config.password },
 	};
 
     parse_options (spice_options, ARRAY_LENGTH (spice_options), argc, argv);
