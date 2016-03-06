@@ -391,6 +391,32 @@ rdp_backend_la_SOURCES = 			\
 	shared/helpers.h
 endif
 
+if ENABLE_SPICE_COMPOSITOR
+module_LTLIBRARIES += spice-backend.la
+spice_backend_la_LDFLAGS = -module -avoid-version
+spice_backend_la_LIBADD = $(COMPOSITOR_LIBS) \
+	$(SPICE_SERVER_LIBS) 			\
+	$(SPICE_PROTOCOL_LIBS)			\
+	libshared.la
+spice_backend_la_CFLAGS =			\
+	$(COMPOSITOR_CFLAGS)			\
+	$(SPICE_SERVER_CFLAGS) 			\
+	$(SPICE_PROTOCOL_CFLAGS)		\
+	$(AM_CFLAGS)
+spice_backend_la_SOURCES = 			\
+	src/spice/compositor-spice.c          \
+	src/spice/compositor-spice.h          \
+	src/spice/compositor-spice-conf.h     \
+	src/spice/weston_basic_event_loop.c   \
+	src/spice/weston_basic_event_loop.h   \
+	src/spice/weston_spice_interfaces.h   \
+	src/spice/weston_input_interfaces.c   \
+	src/spice/weston_qxl_interface.c      \
+	src/spice/weston_qxl_commands.h       \
+	src/spice/weston_qxl_commands.c       \
+	shared/helpers.h
+endif
+
 if HAVE_LCMS
 module_LTLIBRARIES += cms-static.la
 cms_static_la_LDFLAGS = -module -avoid-version

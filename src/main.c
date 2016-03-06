@@ -241,6 +241,9 @@ usage(int error_code)
 #if defined(BUILD_RDP_COMPOSITOR)
 			"\t\t\t\trdp-backend.so\n"
 #endif
+#if defined(BUILD_SPICE_COMPOSITOR)
+			"\t\t\t\tspice-backend.so\n"
+#endif
 #if defined(BUILD_RPI_COMPOSITOR) && defined(HAVE_BCM_HOST)
 			"\t\t\t\trpi-backend.so\n"
 #endif
@@ -299,6 +302,16 @@ usage(int error_code)
 		"  --rdp4-key=FILE\tThe file containing the key for RDP4 encryption\n"
 		"  --rdp-tls-cert=FILE\tThe file containing the certificate for TLS encryption\n"
 		"  --rdp-tls-key=FILE\tThe file containing the private key for TLS encryption\n"
+		"\n");
+#endif
+
+#if defined(BUILD_SPICE_COMPOSITOR)
+	fprintf(stderr,
+		"Options for spice-backend.so:\n\n"
+		"  --host=ADDR\t\tThe address to bind\n"
+		"  --port=PORT\t\tThe port to listen on\n"
+		"  --compression=CS\tThe image compression, CS is one of:\n"
+        "\toff auto_glz auto_lz quic glz lz\n"
 		"\n");
 #endif
 
