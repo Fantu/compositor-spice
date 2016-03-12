@@ -261,8 +261,8 @@ AM_CONDITIONAL([ENABLE_SCREEN_SHARING],
 if test x$enable_screen_sharing = xyes; then
   PKG_CHECK_MODULES(SCREEN_SHARE, [wayland-client])
 
-  if test x$enable_rdp_compositor != xyes; then
-    AC_MSG_WARN([The screen-share.so module requires the RDP backend.])
+  if test x$enable_rdp_compositor != xyes -a x$enable_spice_compositor != xyes; then
+    AC_MSG_WARN([The screen-share.so module requires the RDP or spice backend.])
   fi
 fi
 
