@@ -241,6 +241,9 @@ usage(int error_code)
 #if defined(BUILD_RDP_COMPOSITOR)
 			"\t\t\t\trdp-backend.so\n"
 #endif
+#if defined(BUILD_SPICE_COMPOSITOR)
+			"\t\t\t\tspice-backend.so\n"
+#endif
 #if defined(BUILD_RPI_COMPOSITOR) && defined(HAVE_BCM_HOST)
 			"\t\t\t\trpi-backend.so\n"
 #endif
@@ -299,6 +302,21 @@ usage(int error_code)
 		"  --rdp4-key=FILE\tThe file containing the key for RDP4 encryption\n"
 		"  --rdp-tls-cert=FILE\tThe file containing the certificate for TLS encryption\n"
 		"  --rdp-tls-key=FILE\tThe file containing the private key for TLS encryption\n"
+		"\n");
+#endif
+
+#if defined(BUILD_SPICE_COMPOSITOR)
+	fprintf(stderr,
+		"Options for spice-backend.so:\n\n"
+		"  --host=ADDR\t\tThe address to bind\n"
+		"  --port=PORT\t\tThe port to listen on\n"
+ 		"  --password=PWD\tThe password (auth disabled if not specified)\n"
+		"  --image-compression=[auto_glz|auto_lz|quic|glz|lz|lz4|off]\t\n"
+		"\tThe image compression (lossless). Default is auto_glz\n"
+		"  --jpeg-wan-compression=[auto|never|always]\t\n"
+		"\tThe wan image compression (lossy for slow links). Default is auto\n"
+		"  --zlib-glz-wan-compression=[auto|never|always]\t\n"
+		"\tThe wan image compression (lossy for slow links). Default is auto\n"
 		"\n");
 #endif
 
