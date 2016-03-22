@@ -115,7 +115,7 @@ on_wakeup (void *opaque) {
 
 	weston_compositor_read_presentation_clock(b->compositor, &ts);
 
-    b->core->timer_start (output->wakeup_timer, 1);
+    b->core->timer_start (output->wakeup_timer, 10);
     spice_qxl_wakeup(&b->display_sin);
 
     weston_output_finish_frame (&output->base, &ts, 0);
