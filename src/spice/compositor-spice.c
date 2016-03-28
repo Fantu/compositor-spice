@@ -73,25 +73,28 @@ spice_output_start_repaint_loop(struct weston_output *output_base)
 }
 static int
 spice_output_repaint (struct weston_output *output_base,
-        pixman_region32_t *damage)
+		      pixman_region32_t *damage)
 {
-    struct spice_output *output = (struct spice_output *) output_base;
-    struct spice_backend *b = output->backend;
+	struct spice_output *output = (struct spice_output *) output_base;
+	struct spice_backend *b = output->backend;
 
-    output->base.compositor->renderer->repaint_output (output_base, damage);
+	output->base.compositor->renderer->repaint_output (output_base, damage);
 
-    if (output->full_image_id == 0) {
-        output->full_image_id = spice_create_image(b);
-    }
+	if (pixman_region32_not_empty(damage)) {
+		if (output->full_image_id == 0) {
+			output->full_image_id = spice_create_image(b);
+		}
 
-    return spice_paint_image (b, output->full_image_id,
-            output_base->x,
-            output_base->y,
-            output_base->width,
-            output_base->height,
-            (intptr_t)pixman_image_get_data(output->full_image),
-            output_base->width * 4,
-            damage );
+		return spice_paint_image (b, output->full_image_id,
+					  output_base->x,
+					  output_base->y,
+					  output_base->width,
+					  output_base->height,
+					  (intptr_t)pixman_image_get_data(output->full_image),
+					  output_base->width * 4,
+					  damage );
+	}
+	return 0;
 }
 
 static void
