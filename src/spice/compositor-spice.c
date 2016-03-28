@@ -77,7 +77,10 @@ spice_output_repaint (struct weston_output *output_base,
 {
 	struct spice_output *output = (struct spice_output *) output_base;
 	struct spice_backend *b = output->backend;
+	struct weston_compositor *ec = output->base.compositor;
 
+	/* Repaint the damaged region onto the buffer. */
+	pixman_renderer_output_set_buffer (output_base, output->full_image);
 	output->base.compositor->renderer->repaint_output (output_base, damage);
 
 	if (pixman_region32_not_empty(damage)) {
@@ -85,15 +88,22 @@ spice_output_repaint (struct weston_output *output_base,
 			output->full_image_id = spice_create_image(b);
 		}
 
-		return spice_paint_image (b, output->full_image_id,
-					  output_base->x,
-					  output_base->y,
-					  output_base->width,
-					  output_base->height,
-					  (intptr_t)pixman_image_get_data(output->full_image),
-					  output_base->width * 4,
-					  damage );
+		if (spice_paint_image (b, output->full_image_id,
+				       output_base->x,
+				       output_base->y,
+				       output_base->width,
+				       output_base->height,
+				       (intptr_t)pixman_image_get_data(output->full_image),
+				       output_base->width * 4,
+				       damage ) != 0) {
+			weston_log("Failed spice_paint_image in repaint.\n");
+		}
 	}
+	
+	/* Update the damage region. */
+	pixman_region32_subtract(&ec->primary_plane.damage,
+				 &ec->primary_plane.damage, damage);
+	
 	return 0;
 }
 
